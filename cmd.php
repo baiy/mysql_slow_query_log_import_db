@@ -21,11 +21,13 @@ class cmd{
     private $db;
     private $addlists;
     public function __construct(){
-        // 数据库配置
         $this->db = new \Baiy\Mysql(array("dbname"=>'test',"debug"=>true));
     }
     public function addOne($str){
-        if(strpos($str,'# Time:') !== false){
+        if(
+            strpos($str,'# Time:') !== false ||
+            strpos($str,'use ') !== false
+        ){
             return;
         }
         if(strpos($str,'# User@Host:') !== false){
@@ -39,7 +41,6 @@ class cmd{
         if(empty($this->addlists)){
             return;
         }
-        // 插入数据表
         $this->db->table('db_analysis')->data($this->addlists)->add();
         echo $this->addlists[0]['timestamp']."\n";
         $this->addlists = [];
@@ -57,10 +58,10 @@ class cmd{
         if(strpos($info,'# User@Host:') === false){
             return;
         }
-        preg_match('/# User@Host:(?<user>.*?)@.*?\[(?<host>.*?)\].*?Id: (?<dbid>\d+).*?ry_time:(?<query_time>.*?)Lock_time:(?<lock_time>.*?)Rows_sent:(?<rows_sent>.*?)Rows_examined:(?<rows_examined>.*?)SET timestamp=(?<timestamp>.*?);(?<sql>.*?);/', $info,$m);
+        preg_match('/# User@Host:(?<user>.*?)@.*?\[(?<host>.*?)\].*?Id: (?<dbid>\d+).*?ry_time:(?<query_time>.*?)Lock_time:(?<lock_time>.*?)Rows_sent:(?<rows_sent>.*?)Rows_examined:(?<rows_examined>.*?)SET timestamp=(?<timestamp>.*?);(?<sql>.*?);/i', $info,$m);
         $lists = array();
         if(!empty($m['sql'])){
-            preg_match('/FROM (?<table>[0-9a-zA-Z\_\-]+)/', $m['sql'],$t);
+            preg_match('/FROM (?<table>[0-9a-zA-Z\_\-]+)/i', $m['sql'],$t);
             $lists = array(
                 "query_time"=>$m['query_time'],
                 "lock_time"=>$m['lock_time'],
@@ -71,7 +72,7 @@ class cmd{
                 "user"=>$m['user'],
                 "host"=>$m['host'],
                 "table"=>$t['table'],
-                "dbid"=>$m['dbid']
+                "dbid"=>$m['dbid'],
             );
             $this->addDbList(array_map('trim', $lists));
         }
