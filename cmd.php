@@ -58,7 +58,7 @@ class cmd{
         if(strpos($info,'# User@Host:') === false){
             return;
         }
-        preg_match('/# User@Host:(?<user>.*?)@.*?\[(?<host>.*?)\].*?Id: (?<dbid>\d+).*?ry_time:(?<query_time>.*?)Lock_time:(?<lock_time>.*?)Rows_sent:(?<rows_sent>.*?)Rows_examined:(?<rows_examined>.*?)SET timestamp=(?<timestamp>.*?);(?<sql>.*?);/i', $info,$m);
+        preg_match('/# User@Host:(?<user>.*?)@.*?\[(?<host>.*?)\].*?Id: +(?<dbid>\d+).*?ry_time:(?<query_time>.*?)Lock_time:(?<lock_time>.*?)Rows_sent:(?<rows_sent>.*?)Rows_examined:(?<rows_examined>.*?)SET timestamp=(?<timestamp>.*?);(?<sql>.*?);/i', $info,$m);
         $lists = array();
         if(!empty($m['sql'])){
             preg_match('/FROM (?<table>[0-9a-zA-Z\_\-]+)/i', $m['sql'],$t);
